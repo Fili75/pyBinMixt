@@ -1,6 +1,8 @@
-import example as e
+import binmixtC
 import numpy as np
-import sklearn.metrics as sk
+import pandas as pd
+from sklearn.metrics import adjusted_rand_score
+from sklearn.utils.validation import check_is_fitted, check_X_y
 
 
 class BinMixt:
@@ -11,12 +13,13 @@ class BinMixt:
     It uses a composite likelihood EM (CL-EM) on bin-marginal data.
     It has an initialization phase where a fixed points are randomly extracted and used as initizations of several small CL-EM.
     The best point is retained and used to initialize a second long CL-EM
+
     Parameters
     ----------
     classes : int
         The number of mixture components.
     grid : list
-        List of integers specyfing the refinement of the marginal grids. The length of the list must be equal
+        List of integers specifying the refinement of the marginal grids. The length of the list must be equal
         to the dimension of the analyzed data.
     it_init : int
         Number of iterations of the small CL-EM algorithm
@@ -30,6 +33,7 @@ class BinMixt:
        Number of initialization points for the small CL-EM algorithms
     seed : int
        Fix the seed for reproducibility
+
     Attributes
     ----------
     bin_ : dict
@@ -49,11 +53,11 @@ class BinMixt:
             self,
             classes,
             grid,
-            it_init,
-            it_algo,
-            eps_init,
-            eps_algo,
-            n_init,
+            it_init=10,
+            it_algo=100,
+            eps_init=np.pow(10,-8),
+            eps_algo=np.pow(10,-8),
+            n_init=100,
             seed=1):
         if isinstance(grid, np.ndarray):
             self.grid = grid.tolist()
@@ -79,14 +83,22 @@ class BinMixt:
 
     def fit(self, X):
         """
-        :param X: list
-                Input data
-        :return: self: object
-                The fitted mixture
+        Parameters
+        ----------
+        X: list
+            Input data.
+
+        Returns
+        ---------
+
+        self: object
+                The fitted mixture.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
-        result = e.binmixtclassic(
+        result = binmixtC.binmixtclassic(
             X,
             self.classes,
             self.grid,
@@ -104,14 +116,22 @@ class BinMixt:
 
     def fit_predict(self, X):
         """
-        :param X: list
-                Input data
-        :return: labels: list
-                estimated labels
+        Parameters
+        ----------
+        X: list
+            Input data.
+
+        Returns
+        ---------
+
+        labels: list
+                Estimated labels.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
-        result = e.binmixtclassic(
+        result = binmixtC.binmixtclassic(
             X,
             self.classes,
             self.grid,
@@ -126,40 +146,61 @@ class BinMixt:
         self.mu_ = result["mu"]
         self.v_ = result["v"]
         self.loglik_ = result["loglik"]
-        prob = e.posterior(X, self.pi_, self.mu_, self.v_)
+        prob = binmixtC.posterior(X, self.pi_, self.mu_, self.v_)
         return np.argmax(prob, axis=1)
 
     def predict(self, X):
         """
-        :param X: list
-                Input data
-        :return: labels: list
-                estimated labels
+        Parameters
+        ----------
+        X: list
+            Input data.
+
+        Returns
+        ---------
+
+        labels: list
+                Estimated labels.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
-        prob = e.posterior(X, self.pi_, self.mu_, self.v_)
+        check_is_fitted(self,attributes = "pi_")
+        prob = binmixtC.posterior(X, self.pi_, self.mu_, self.v_)
         return np.argmax(prob, axis=1)
 
     def score(self, X, y):
         """
-        :param X: list
-                Input data
-        :param  y: list
-                Input labels
-        :return: labels: list
-                estimated labels
+        Parameters
+        ----------
+        X: list
+            Input data.
+        Y: list
+            Input true labels.
+
+        Returns
+        ---------
+
+        labels: list
+                Estimated labels.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
-        prob = e.posterior(X, self.pi_, self.mu_, self.v_)
+        if isinstance(y,pd.core.frame.DataFrame):
+            y = y.values
+        if isinstance(y, list):
+            y = np.ndarray(y)
+        prob = binmixtC.posterior(X, self.pi_, self.mu_, self.v_)
         pred = np.argmax(prob, axis=1)
-        return sk.adjusted_rand_score(y, pred)
+        return adjusted_rand_score(y, pred)
 
 
 class WindowTransformer:
     """
-    Tranform the given dataset in a new dataset containing variances, means and root mean squared of points inside
+    Transform the given dataset in a new dataset containing variances, means and root mean squared of points inside
     sliding windows of fixed width for each variable.
     --------
     Parameters
@@ -193,18 +234,28 @@ class WindowTransformer:
 
     def fit(self, X, y):
         """
-        :param X: list
-                Input data
-        :param  y: list
-                Input labels
-        :return: self: object
-                The estimated transformation
+        Parameters
+        ----------
+        X: list
+            Input data.
+        y: list
+            Input true labels.
+
+        Returns
+        ---------
+
+        self: object
+                The estimated transformation.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
+        if isinstance(y,pd.core.frame.DataFrame):
+            y = y.values.tolist()
         if isinstance(y, np.ndarray):
             y = y.tolist()
-        self.trans = e.window(
+        self.trans = binmixtC.window(
             X,
             y,
             self.width,
@@ -214,18 +265,28 @@ class WindowTransformer:
 
     def fit_transform(self, X, y):
         """
-        :param X: list
-                Input data
-        :param  y: list
-                Input labels
-        :return: trans: list
-                the trasformed dataset
+        Parameters
+        ----------
+        X: list
+            Input data.
+        y: list
+            Input true labels.
+
+        Returns
+        ---------
+
+        trans: list
+                The transformed dataset.
         """
+        if isinstance(X,pd.core.frame.DataFrame):
+            X = X.values.tolist()
         if isinstance(X, np.ndarray):
             X = X.tolist()
+        if isinstance(y,pd.core.frame.DataFrame):
+            y = y.values.tolist()
         if isinstance(y, np.ndarray):
             y = y.tolist()
-        self.trans = e.window(
+        self.trans = binmixtC.window(
             X,
             y,
             self.width,
