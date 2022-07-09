@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: pyBinMixt
+Version: 1.0.0
+Summary: Frugal bin-marginal Gaussian model-based clustering
+Home-page: UNKNOWN
+Author: Filippo Antonazzo
+License: UNKNOWN
+Keywords: clustering,mixture model,heterogeneous,missing data
+Platform: UNKNOWN
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+
+UNKNOWN
+

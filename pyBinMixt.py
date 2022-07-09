@@ -55,8 +55,8 @@ class BinMixt:
             grid,
             it_init=10,
             it_algo=100,
-            eps_init=np.pow(10,-8),
-            eps_algo=np.pow(10,-8),
+            eps_init=pow(10,-8),
+            eps_algo=pow(10,-8),
             n_init=100,
             seed=1):
         if isinstance(grid, np.ndarray):
