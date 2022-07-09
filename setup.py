@@ -12,7 +12,6 @@ setup(
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering :: Artificial Intelligence"
     ],
-    zip_safe=False,
     package_data={"binmixtC": ["binmixtC.so"]},
     install_requires=["numpy", "scikit-learn"],
 )
