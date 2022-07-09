@@ -4,7 +4,6 @@ import pandas as pd
 from sklearn.metrics import adjusted_rand_score
 from sklearn.utils.validation import check_is_fitted, check_X_y
 
-
 class BinMixt:
     """
     Bin-marginal mixture model
