@@ -2,8 +2,8 @@ CC=gcc
 CXX=g++
 RM=rm -f
 CPPFLAGS +=  -g  -fPIC -O2
-LDFLAGS +=  -I /usr/include/python3.6
-LDLIBS += -L /usr/lib/x86_64-linux-gnu -l:libboost_python3.so -l boost_numpy3 -l armadillo
+LDFLAGS +=  -I /usr/include/python3.10
+LDLIBS += -L /usr/lib/x86_64-linux-gnu -l:libboost_python310.so -l boost_numpy310 -l armadillo
 
 TMPSRCS=$(wildcard Source_cpp/*.cpp)
 SRCS = $(filter-out Source_cpp/binmixtC.cpp, $(TMPSRCS))
